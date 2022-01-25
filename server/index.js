@@ -1,5 +1,5 @@
 const db = require('./database.js');
-const helmet = require('helmet');
+// const helmet = require('helmet');
 // const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 const express = require('express');
 const path = require('path');
@@ -12,8 +12,8 @@ const crypto = require('crypto');
 const app = express();
 const port = 3001;
 
-app.use(helmet());
-app.use('/quad', express.static(path.resolve(__dirname, '../client/build')));
+// app.use(helmet());
+app.use('/quad', express.static(path.resolve(__dirname, '../client/build/')));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -22,9 +22,9 @@ app.get('/*', (req, res) => {
   logLine('get', [`Endpoint ${chalk.blue('/')}, Client ID: ${chalk.green(req?.cookies?.ClientID)}`]);
   if (!req?.cookies?.ClientID) {
     const newid = crypto.randomBytes(10).toString('hex'); // gen an ID to use for cookie that expires in 10 years
-    res.cookie('ClientID', newid, { maxAge: 525600000000 }).sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+    res.cookie('ClientID', newid, { maxAge: 525600000000 }).sendFile(path.resolve(__dirname, '../client/build/', 'index.html'));
   } else {
-    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+    res.sendFile(path.resolve(__dirname, '../client/build/', 'index.html'));
   }
 });
 
