@@ -92,6 +92,7 @@ class FormGenerator extends React.Component {
     }
     return (
       <div>
+        <ResponseDisplay response={this.state.response} />
         <form className="Generator-form" onSubmit={this.handleSubmit}>
           <div>
             <label>Question: </label>
@@ -134,6 +135,27 @@ class AnswerEntry extends React.Component {
         <label className="Generator-answer"> {this.props.id + 1}. </label>
         <input name="answer" type="text" value={this.props.answer} onChange={this.handleChange} />
         <button className="Generator-delbtn" type="button" name="delAnswer" onClick={this.handleClick}>Remove</button>
+      </div>
+    );
+  }
+}
+
+class ResponseDisplay extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    if (!Object.keys(this.props.response).length) {
+      return (null);
+    } else if (this.props.response.status == 'error') {
+      return (<h3 className="Form-error">Submission error: {this.props.response.value}</h3>);
+    }
+    return (
+      <div>
+        <h3 className="Form-success">Survey Created!</h3>
+        <h4 className="Form-success-link"><a href={`./survey-${this.props.response.value}`}>Link for sharing</a> </h4>
+        <h4 className="Form-success-link"><a href={`./results-${this.props.response.value}-${this.props.response.secret}`}>Results</a></h4>
       </div>
     );
   }

@@ -55,3 +55,7 @@
   display:inline;
   font-family: 'Fira Code', monospace;
 }
+
+.Form-success-link {
+  display:inline;
+}

@@ -160,6 +160,7 @@ class SurveyForm extends React.Component {
     }
     return (
       <div>
+        <ResponseDisplay response={this.state.response} />
         <h1>{this.state.survey.question}</h1>
         <h3>Points Left: {this.state.points}</h3>
         <div>
@@ -191,6 +192,25 @@ class AnswerEntry extends React.Component {
         <button className="Survey-upbtn" type="button" name="voteUp" onClick={this.handleClick}>+</button>
         <h4 className="Survey-count"> Votes: {this.props.votes} </h4>
         <h4 className="Survey-count"> Points: {(this.props.votes) ** 2} </h4>
+      </div>
+    );
+  }
+}
+
+class ResponseDisplay extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    if (!Object.keys(this.props.response).length) {
+      return (null);
+    } else if (this.props.response.status == 'error') {
+      return (<h3 className="Form-error">Submission error: {this.props.response.value}</h3>);
+    }
+    return (
+      <div>
+        <h3 className="Form-success">Responses Recorded!</h3>
       </div>
     );
   }

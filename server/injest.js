@@ -46,7 +46,7 @@ async function create(newsurvey) {
 
   await db.insert(saferesponse, 'id', 'responses');
   await db.insert(safesurvey, 'id', 'surveys');
-  return { status:'success', value: id };
+  return { status:'success', value: id, secret: secret };
 }
 exports.create = create;
 
