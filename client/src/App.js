@@ -18,7 +18,7 @@ class App extends React.Component {
   }
 
   mainDisplay(option) {
-    const match = option.match(/(?:\/)?(\w*)?(?:-)?([\da-f]{20})?(?:-)?([\da-f]{20})?/);
+    const match = option.match(/(?:\/quad\/)?(\w*)?(?:-)?([\da-f]{20})?(?:-)?([\da-f]{20})?/);
     switch (match[1]) {
 
     case 'new':
