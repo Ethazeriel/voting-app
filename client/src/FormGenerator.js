@@ -68,7 +68,7 @@ class FormGenerator extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
     console.log(this.state);
-    fetch('/create', {
+    fetch('./create', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

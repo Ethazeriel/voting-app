@@ -1,5 +1,5 @@
 const db = require('./database.js');
-// const helmet = require('helmet');
+const helmet = require('helmet');
 // const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 const express = require('express');
 const path = require('path');
@@ -12,8 +12,9 @@ const crypto = require('crypto');
 const app = express();
 const port = 3001;
 
-// app.use(helmet());
+app.use(helmet());
 app.use('/quad', express.static(path.resolve(__dirname, '../client/build/')));
+app.use(express.static(path.resolve(__dirname, '../client/build/')));
 app.use(express.json());
 app.use(cookieParser());
 

@@ -23,7 +23,7 @@ class SurveyForm extends React.Component {
   }
 
   componentDidMount() {
-    fetch('/load', {
+    fetch('./load', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -136,7 +136,7 @@ class SurveyForm extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
     console.log(this.state);
-    fetch('/response', {
+    fetch('./response', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
