@@ -9,3 +9,5 @@ Install instructions:
   ```
 
 Paths are set up to be hosted at / for local testing and at yourdomain.net/quad for deployment - you'll need to modify the regexes in client/src/App.js and server/index.js to fit your setup.
+
+This app is not built securely, and there are no efforts made to prevent duplicate votes beyond very basic cookie tracking - do not use in environments where not all participants can be trusted!
