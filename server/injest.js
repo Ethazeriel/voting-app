@@ -4,8 +4,12 @@ const { logLine } = require('./logger.js');
 const { regexes } = require('./regexes.js');
 const crypto = require('crypto');
 
-async function create(newsurvey) {
+async function create(newsurvey, ClientID) {
   const safesurvey = {};
+
+  const safeID = ClientID?.replace(regexes.sanitize, '').trim();
+  if (!regexes.hex.test(safeID)) {return { status:'error', value:'Cookies are required to use this app' };}
+  safesurvey.ClientID = safeID;
 
   const question = newsurvey?.question?.replace(regexes.sanitize, '').trim();
   if (!regexes.alphanum.test(question)) {return { status:'error', value:'Invalid question' };}
@@ -18,6 +22,7 @@ async function create(newsurvey) {
   safesurvey.answers = [];
   let answerindex = 0;
   if (!Array.isArray(newsurvey.answers)) {return { status:'error', value:'Invalid answer array' };}
+  if (!newsurvey.answers.length) {return { status:'error', value:'You need to have at least one answer' };}
   for (const answer of newsurvey.answers) {
     const safeanswer = answer?.replace(regexes.sanitize, '').trim();
     if (!regexes.alphanum.test(safeanswer)) {return { status:'error', value: `Invalid answer (#${answerindex + 1})` };}

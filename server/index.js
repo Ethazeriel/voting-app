@@ -30,8 +30,8 @@ app.get('/*', (req, res) => {
 });
 
 app.post('/create', async (req, res) => {
-  logLine('post', [`Endpoint ${chalk.blue('/create')}`]);
-  const result = await injest.create(req.body);
+  logLine('post', [`Endpoint ${chalk.blue('/create')}, Client ID: ${chalk.green(req?.cookies?.ClientID)}`]);
+  const result = await injest.create(req.body, req?.cookies?.ClientID);
   res.json(result);
 });
 
