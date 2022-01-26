@@ -1,0 +1,8 @@
+{  
+    "mongo": {
+        "url": "mongo connection string as per https://docs.mongodb.com/manual/reference/connection-string/",
+        "database": "your database name",
+        "collection": "anything, we don't use this"
+    },
+    "debug": true
+}
