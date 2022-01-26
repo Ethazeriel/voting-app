@@ -8,17 +8,13 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      path: '/',
+      path: window.location.pathname,
     };
     this.mainDisplay = this.mainDisplay.bind(this);
   }
 
-  componentDidMount() {
-    this.setState({ path: window.location.pathname });
-  }
-
   mainDisplay(option) {
-    const match = option.match(/(?:\/quad\/)?(\w*)?(?:-)?([\da-f]{20})?(?:-)?([\da-f]{20})?/);
+    const match = option.match(/(?:\/quad\/|\/)?(\w*)?(?:-)?([\da-f]{20})?(?:-)?([\da-f]{20})?/);
     switch (match[1]) {
 
     case 'new':

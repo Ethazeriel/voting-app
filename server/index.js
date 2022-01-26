@@ -42,8 +42,8 @@ app.post('/response', async (req, res) => {
 });
 
 app.post('/load', async (req, res) => { // yes this should just be a get that I urlencode
-  if (/^(?:\/quad\/)?([a-z]*)(?:-){1}([\da-f]{20}){1}/.test(req.body.path)) {
-    const match = req.body.path.match(/^(?:\/quad\/)?([a-z]*)(?:-){1}([\da-f]{20}){1}/);
+  if (/^(?:\/quad\/|\/)?([a-z]*)(?:-){1}([\da-f]{20}){1}/.test(req.body.path)) {
+    const match = req.body.path.match(/^(?:\/quad\/|\/)?([a-z]*)(?:-){1}([\da-f]{20}){1}/);
     logLine('post', [`Endpoint ${chalk.blue('/load')}, code ${chalk.green(match[2])}, Client ID: ${chalk.green(req?.cookies?.ClientID)}`]);
     const result = await db.get({ id:match[2] }, 'surveys');
     if (result) {
