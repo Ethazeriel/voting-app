@@ -8,27 +8,33 @@ async function create(newsurvey, ClientID) {
   const safesurvey = {};
 
   const safeID = ClientID?.replace(regexes.sanitize, '').trim();
-  if (!regexes.hex.test(safeID)) {return { status:'error', value:'Cookies are required to use this app' };}
+  if (!regexes.hex.test(safeID)) {return { status:'error', error:'Cookies are required to use this app' };}
   safesurvey.ClientID = safeID;
 
   const question = newsurvey?.question?.replace(regexes.sanitize, '').trim();
-  if (!regexes.alphanum.test(question)) {return { status:'error', value:'Invalid question' };}
+  if (!regexes.alphanum.test(question)) {return { status:'error', error:'Invalid question' };}
   safesurvey.question = question;
 
   const points = Number(newsurvey?.points);
-  if (!regexes.int.test(points)) {return { status:'error', value:'Invalid points' };}
+  if (!regexes.int.test(points)) {return { status:'error', error:'Invalid points' };}
   safesurvey.points = points;
 
   safesurvey.answers = [];
   let answerindex = 0;
-  if (!Array.isArray(newsurvey.answers)) {return { status:'error', value:'Invalid answer array' };}
-  if (!newsurvey.answers.length) {return { status:'error', value:'You need to have at least one answer' };}
+  if (!Array.isArray(newsurvey.answers)) {return { status:'error', error:'Invalid answer array' };}
+  if (!newsurvey.answers.length) {return { status:'error', error:'You need to have at least one answer' };}
   for (const answer of newsurvey.answers) {
     const safeanswer = answer?.replace(regexes.sanitize, '').trim();
-    if (!regexes.alphanum.test(safeanswer)) {return { status:'error', value: `Invalid answer (#${answerindex + 1})` };}
+    if (!regexes.alphanum.test(safeanswer)) {return { status:'error', error: `Invalid answer (#${answerindex + 1})` };}
     safesurvey.answers.push(safeanswer);
     answerindex++;
   }
+
+  const name = Boolean(newsurvey?.namecheck);
+  safesurvey.name = name;
+
+  const email = Boolean(newsurvey?.emailcheck);
+  safesurvey.email = email;
 
   logLine('INFO', ['Data is good - generating new ID and secret']);
   let id = crypto.randomBytes(10).toString('hex');
@@ -60,23 +66,37 @@ async function response(newresponse, ClientID) {
   const safedata = {};
 
   const id = newresponse?.survey?.id?.replace(regexes.sanitize, '').trim();
-  if (!regexes.hex.test(id)) {return { status:'error', value:'Invalid survey ID' };}
+  if (!regexes.hex.test(id)) {return { status:'error', error:'Invalid survey ID' };}
   safequery.id = id;
 
   const safeID = ClientID?.replace(regexes.sanitize, '').trim();
-  if (!regexes.hex.test(safeID)) {return { status:'error', value:'Cookies are required to use this app' };}
+  if (!regexes.hex.test(safeID)) {return { status:'error', error:'Cookies are required to use this app' };}
   safedata.ClientID = safeID;
 
   const safeResponses = [];
-  if (!Array.isArray(newresponse.votes)) {return { status:'error', value:'Invalid vote array' };}
+  const points = [];
+  if (!Array.isArray(newresponse.votes)) {return { status:'error', error:'Invalid vote array' };}
   let answerindex = 0;
   for (const vote of newresponse.votes) {
     const safevote = Number(vote);
-    if (!regexes.int.test(safevote)) {return { status:'error', value: `Invalid vote (#${answerindex + 1})` };}
+    if (!regexes.int.test(safevote)) {return { status:'error', error: `Invalid vote (#${answerindex + 1})` };}
     safeResponses.push(safevote);
+    points.push(safevote ** 2);
     answerindex++;
   }
   safedata.votes = safeResponses;
+  safedata.points = points;
+
+  safedata.remaining = newresponse?.survey?.points - safedata.votes.reduce((previousValue, currentValue) => previousValue + (currentValue ** 2), 0);
+
+  const safeName = newresponse?.name?.replace(regexes.sanitize, '').trim();
+  if (!regexes.alphanum.test(safeName) && (safeName != '')) {return { status:'error', error:'Name field only allows alphanumeric characters' };}
+  safedata.name = safeName;
+
+  const email = newresponse?.email;
+  if (!regexes.email.test(email) && (email != '')) {return { status:'error', error:'That doesn\'t look like a valid email address' };}
+  safedata.email = email;
+
   const test = await db.get({ $and: [{ id:id }, { 'responses.ClientID':safeID }] }, 'responses');
   if (!test) {
     await db.update(safequery, { $addToSet: { responses:safedata } }, 'responses');

@@ -10,6 +10,8 @@ class FormGenerator extends React.Component {
       points: 100,
       answers: [],
       response: {},
+      namecheck: true,
+      emailcheck: true,
     };
     this.state = this.initialState;
     this.handleChange = this.handleChange.bind(this);
@@ -62,27 +64,36 @@ class FormGenerator extends React.Component {
         });
       }
       break;
+
+    case 'namecheck':
+    case 'emailcheck':
+      console.log(name);
+      console.log(this.state[name]);
+      this.setState({ [name]: this.state[name] ? false : true });
+      break;
     }
   }
 
   handleSubmit(event) {
     event.preventDefault();
     console.log(this.state);
-    fetch('./create', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(this.state),
-    }).then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        this.setState({ response: json });
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    if (!Object.keys(this.state.response).length || this.state.response.status === 'error') {
+      fetch('./create', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.state),
+      }).then((response) => response.json())
+        .then((json) => {
+          console.log(json);
+          this.setState({ response: json });
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {this.setState({ response: { status:'error-submitted', error:'Survey already submitted', value:this.state.response.value, secret:this.state.response.secret } });}
   }
 
   render() {
@@ -106,6 +117,13 @@ class FormGenerator extends React.Component {
             <label>Answers: </label>
             <button type="button" name="addAnswer" onClick={this.handleClick}>Add</button>
             {answers}
+          </div>
+          <div>
+            <label>Additional inputs: </label><br />
+            <input type="checkbox" name="namecheck" checked={this.state.namecheck} onChange={this.handleChange} />
+            <label>Name</label>
+            <input type="checkbox" name="emailcheck" checked={this.state.emailcheck} onChange={this.handleChange} />
+            <label>Email</label>
           </div>
           <input type="submit" value="Create" />
         </form>
@@ -148,8 +166,8 @@ class ResponseDisplay extends React.Component {
   render() {
     if (!Object.keys(this.props.response).length) {
       return (null);
-    } else if (this.props.response.status == 'error') {
-      return (<h3 className="Form-error">Submission error: {this.props.response.value}</h3>);
+    } else if (this.props.response.status == ('error' || 'error-submitted')) {
+      return (<h3 className="Form-error">Submission error: {this.props.response.error}</h3>);
     }
     return (
       <div>

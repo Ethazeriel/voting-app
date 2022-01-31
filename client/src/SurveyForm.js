@@ -15,6 +15,8 @@ class SurveyForm extends React.Component {
       },
       response: {},
       ClientID: null,
+      name: '',
+      email: '',
     };
     this.state = this.initialState;
     this.handleChange = this.handleChange.bind(this);
@@ -130,6 +132,11 @@ class SurveyForm extends React.Component {
         });
       }
       break;
+
+    case 'name':
+    case 'email':
+      this.setState({ [name]: value });
+      break;
     }
   }
 
@@ -158,6 +165,13 @@ class SurveyForm extends React.Component {
     for (let i = 0; i < this.state.survey.answers.length; i++) {
       answers.push(<AnswerEntry key={i} id={i} answer={this.state.survey.answers[i]} votes={this.state.votes[i]} onClick={this.handleClick} />);
     }
+    const extras = [];
+    if (this.state.survey.name) {
+      extras.push(<label key="name">Name: <input type="text" name="name" value={this.state.name} onChange={this.handleChange} /> </label>);
+    }
+    if (this.state.survey.email) {
+      extras.push(<label key="email">Email: <input type="text" name="email" value={this.state.email} onChange={this.handleChange} /></label>);
+    }
     return (
       <div>
         <ResponseDisplay response={this.state.response} />
@@ -167,6 +181,9 @@ class SurveyForm extends React.Component {
           <label>Answers: </label>
           <button className="Survey-rstbtn" type="button" name="reset" onClick={this.handleClick}>Reset Votes</button>
           {answers}
+        </div>
+        <div>
+          {extras}
         </div>
         <button type="submit" name="submit" onClick={this.handleSubmit}>Submit response</button>
       </div>
@@ -206,7 +223,7 @@ class ResponseDisplay extends React.Component {
     if (!Object.keys(this.props.response).length) {
       return (null);
     } else if (this.props.response.status == 'error') {
-      return (<h3 className="Form-error">Submission error: {this.props.response.value}</h3>);
+      return (<h3 className="Form-error">Submission error: {this.props.response.error}</h3>);
     }
     return (
       <div>

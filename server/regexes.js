@@ -19,7 +19,7 @@ exports.spotifyPattern = spotifyPattern;
 exports.youtubePattern = youtubePattern;
 
 const regexes = {
-  sanitize: /([^\w :/.?=&*-])+/g,
+  sanitize: /([^\w :/.?=@&*',-])+/g,
   year: /^([\d]){2}$/,
   id: /^[\d]{4}[a-z]?$/,
   species: /^[A-Z]{4}$/,
@@ -32,6 +32,7 @@ const regexes = {
   time: /^AM$|^PM$/,
   int: /^(\d+)$/,
   hex: /^([\da-f]){20}$/,
+  email: /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
 };
 
 exports.regexes = regexes;
