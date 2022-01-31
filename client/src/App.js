@@ -1,8 +1,8 @@
-import logo from './logo.svg';
 import './App.css';
 import FormGenerator from './FormGenerator';
 import React from 'react';
 import SurveyForm from './SurveyForm';
+import ResultsForm from './ResultsForm';
 
 class App extends React.Component {
   constructor(props) {
@@ -23,6 +23,9 @@ class App extends React.Component {
     case 'survey':
       return (<SurveyForm path={this.state.path} />);
 
+    case 'results':
+      return (<ResultsForm path={this.state.path} />);
+
     default:
       return (<FormGenerator />);
     }
@@ -32,7 +35,6 @@ class App extends React.Component {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
           {this.mainDisplay(this.state.path)}
         </header>
       </div>
