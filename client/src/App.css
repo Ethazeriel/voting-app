@@ -59,3 +59,47 @@
 .Form-success-link {
   display:inline;
 }
+
+.Results-answer {
+  margin:0px;
+}
+
+.Results-question {
+  margin:0px;
+}
+
+.Results-title {
+  margin:0.5em;
+}
+
+.Results-raw {
+  border: 1px solid rgb(172, 172, 172);
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.Results-raw thead tr td{
+  border-bottom: 2px solid rgb(126, 126, 126);
+  min-width: 1.5em;
+  padding: 0 0.25em;
+}
+
+.Results-raw tbody tr td{
+  border-right: 1px solid rgb(133, 133, 133);
+}
+
+.Results-raw tbody tr td {
+  padding: 0 0.25em;
+}
+
+.Results-raw thead tr {
+  background-color: #1a1919;
+}
+
+.Results-raw tbody tr:nth-child(odd) {
+  background-color: #4d4d4d;
+}
+
+.Results-raw tbody tr:nth-child(even) {
+  background-color: #2e2e2e;
+}
