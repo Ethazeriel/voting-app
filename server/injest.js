@@ -4,12 +4,14 @@ const { logLine } = require('./logger.js');
 const { regexes } = require('./regexes.js');
 const crypto = require('crypto');
 
-async function create(newsurvey, ClientID) {
+async function create(newsurvey, ClientID, ClientIP) {
   const safesurvey = {};
 
   const safeID = ClientID?.replace(regexes.sanitize, '').trim();
   if (!regexes.hex.test(safeID)) {return { status:'error', error:'Cookies are required to use this app' };}
   safesurvey.ClientID = safeID;
+
+  safesurvey.ClientIP = ClientIP;
 
   const question = newsurvey?.question?.replace(regexes.sanitize, '').trim();
   if (!regexes.alphanum.test(question)) {return { status:'error', error:'Invalid question' };}
@@ -61,7 +63,7 @@ async function create(newsurvey, ClientID) {
 }
 exports.create = create;
 
-async function response(newresponse, ClientID) {
+async function response(newresponse, ClientID, ClientIP) {
   const safequery = {};
   const safedata = {};
 
@@ -72,6 +74,8 @@ async function response(newresponse, ClientID) {
   const safeID = ClientID?.replace(regexes.sanitize, '').trim();
   if (!regexes.hex.test(safeID)) {return { status:'error', error:'Cookies are required to use this app' };}
   safedata.ClientID = safeID;
+
+  safedata.ClientIP = ClientIP;
 
   const safeResponses = [];
   const points = [];

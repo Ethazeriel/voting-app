@@ -13,10 +13,10 @@ const app = express();
 const port = 3001;
 
 app.use(helmet());
+app.use(cookieParser());
+app.use(express.json());
 app.use('/quad', express.static(path.resolve(__dirname, '../client/build/')));
 app.use(express.static(path.resolve(__dirname, '../client/build/')));
-app.use(express.json());
-app.use(cookieParser());
 
 
 app.get('/*', (req, res) => {
@@ -31,13 +31,32 @@ app.get('/*', (req, res) => {
 
 app.post('/create', async (req, res) => {
   logLine('post', [`Endpoint ${chalk.blue('/create')}, Client ID: ${chalk.green(req?.cookies?.ClientID)}`]);
-  const result = await injest.create(req.body, req?.cookies?.ClientID);
+  const result = await injest.create(req.body, req?.cookies?.ClientID, req.socket.remoteAddress);
   res.json(result);
+});
+
+app.post('/results', async (req, res) => { // yes this should just be a get that I urlencode
+  if (/^(?:\/quad\/|\/)?([a-z]*)(?:-){1}([\da-f]{20}){1}(?:-){1}([\da-f]{20}){1}/.test(req.body.path)) {
+    const match = req.body.path.match(/^(?:\/quad\/|\/)?([a-z]*)(?:-){1}([\da-f]{20}){1}(?:-){1}([\da-f]{20}){1}/);
+    logLine('post', [`Endpoint ${chalk.blue('/results')}, code ${chalk.green(match[2])}, Client ID: ${chalk.green(req?.cookies?.ClientID)}`]);
+    const result = await db.get({ $and: [{ id:match[2] }, { secret:match[3] }] }, 'responses');
+    if (result) {
+      const result2 = await db.get({ $and: [{ id:match[2] }, { secret:match[3] }] }, 'surveys');
+      if (result2) {
+        const response = {
+          survey: result2,
+          responses: result,
+          status:'success',
+        };
+        res.json(response);
+      }
+    } else {res.json({ status:'error', error:'Invalid access code' });}
+  } else {res.json({ status:'error', error:'Invalid access code' });}
 });
 
 app.post('/response', async (req, res) => {
   logLine('post', [`Endpoint ${chalk.blue('/response')}`]);
-  const result = await injest.response(req.body, req?.cookies?.ClientID);
+  const result = await injest.response(req.body, req?.cookies?.ClientID, req.socket.remoteAddress);
   res.json(result);
 });
 
@@ -51,6 +70,8 @@ app.post('/load', async (req, res) => { // yes this should just be a get that I 
       if (result2) {
         const entry = result2.responses.filter(response => {return response.ClientID === req.cookies.ClientID; });
         result.votes = entry[0].votes;
+        result.nameentry = entry[0].name || '';
+        result.emailentry = entry[0].email || '';
       }
       res.json(result);
     } else {res.json({ question:'invalid access code' });}
