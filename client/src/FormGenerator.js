@@ -158,25 +158,20 @@ class AnswerEntry extends React.Component {
   }
 }
 
-class ResponseDisplay extends React.Component {
-  constructor(props) {
-    super(props);
+function ResponseDisplay(props) {
+  if (!Object.keys(props.response).length) {
+    return (null);
+  } else if (props.response.status == ('error' || 'error-submitted')) {
+    return (<h3 className="Form-error">Submission error: {props.response.error}</h3>);
   }
+  return (
+    <div>
+      <h3 className="Form-success">Survey Created!</h3>
+      <h4 className="Form-success-link"><a href={`./survey-${props.response.value}`}>Link for sharing</a> </h4>
+      <h4 className="Form-success-link"><a href={`./results-${props.response.value}-${props.response.secret}`}>Results</a></h4>
+    </div>
+  );
 
-  render() {
-    if (!Object.keys(this.props.response).length) {
-      return (null);
-    } else if (this.props.response.status == ('error' || 'error-submitted')) {
-      return (<h3 className="Form-error">Submission error: {this.props.response.error}</h3>);
-    }
-    return (
-      <div>
-        <h3 className="Form-success">Survey Created!</h3>
-        <h4 className="Form-success-link"><a href={`./survey-${this.props.response.value}`}>Link for sharing</a> </h4>
-        <h4 className="Form-success-link"><a href={`./results-${this.props.response.value}-${this.props.response.secret}`}>Results</a></h4>
-      </div>
-    );
-  }
 }
 
 export default FormGenerator;

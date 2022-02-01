@@ -38,15 +38,19 @@ class SurveyForm extends React.Component {
         this.setState({ survey: json });
         let loadvotes = [];
         let loadpoints = json.points;
+        let loadname = '';
+        let loademail = '';
         if (json.votes) {
           loadvotes = json.votes;
           loadpoints = json.points - json.votes.reduce(reducer, 0);
+          loadname = json.nameentry;
+          loademail = json.emailentry;
         } else {
           for (let i = 0; i < json.answers.length; i++) {
             loadvotes.push(0);
           }
         }
-        this.setState({ votes: loadvotes, points:loadpoints });
+        this.setState({ votes: loadvotes, points:loadpoints, name:loadname, email:loademail });
       })
       .catch((error) => {
         console.error(error);
@@ -214,23 +218,17 @@ class AnswerEntry extends React.Component {
   }
 }
 
-class ResponseDisplay extends React.Component {
-  constructor(props) {
-    super(props);
+function ResponseDisplay(props) {
+  if (!Object.keys(props.response).length) {
+    return (null);
+  } else if (props.response.status == 'error') {
+    return (<h3 className="Form-error">Submission error: {props.response.error}</h3>);
   }
-
-  render() {
-    if (!Object.keys(this.props.response).length) {
-      return (null);
-    } else if (this.props.response.status == 'error') {
-      return (<h3 className="Form-error">Submission error: {this.props.response.error}</h3>);
-    }
-    return (
-      <div>
-        <h3 className="Form-success">Responses Recorded!</h3>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h3 className="Form-success">Responses Recorded!</h3>
+    </div>
+  );
 }
 
 export default SurveyForm;
