@@ -34,9 +34,70 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          {this.mainDisplay(this.state.path)}
-        </header>
+        <TopBar />
+        {this.mainDisplay(this.state.path)}
+
+      </div>
+    );
+  }
+}
+
+class TopBar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    this.props.onChange(event);
+  }
+
+  render() {
+    return (
+      <div className="TopBar">
+        <div className="TopBar-item">
+
+        </div>
+        <div className="TopBar-item"><h1 className="TopBar-title">QUADRATIC SURVEY</h1></div>
+        <div className="TopBar-item"><Clock /></div>
+      </div>
+    );
+  }
+}
+
+class Clock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { date: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) };
+    this.tock = false;
+  }
+
+  componentDidMount() {
+    this.timerID = setInterval(() => this.tick(), 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  tick() {
+    if (this.tock) {
+      this.setState({
+        date: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+      });
+      this.tock = false;
+    } else {
+      this.setState({
+        date: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(':', ' '),
+      });
+      this.tock = true;
+    }
+  }
+
+  render() {
+    return (
+      <div className="Clock">
+        <h2>{this.state.date}</h2>
       </div>
     );
   }
