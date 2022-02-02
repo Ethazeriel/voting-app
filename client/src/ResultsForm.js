@@ -1,6 +1,6 @@
 import './App.css';
 import React from 'react';
-const reducer = (previousValue, currentValue) => previousValue + (currentValue ** 2);
+import { CSVLink } from 'react-csv';
 
 class ResultsForm extends React.Component {
   constructor(props) {
@@ -10,8 +10,6 @@ class ResultsForm extends React.Component {
       ClientID: null,
     };
     this.state = this.initialState;
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleClick = this.handleClick.bind(this);
   }
 
   componentDidMount() {
@@ -32,81 +30,9 @@ class ResultsForm extends React.Component {
       });
   }
 
-  handleClick(event, index) {
-    switch (event.target.name) {
-    case 'voteUp': {
-      this.setState(state => {
-        const origvotes = state.votes;
-        const votes = state.votes.map((vote, jndex) => {
-          if (index === jndex) {
-            return vote + 1;
-          } else {
-            return vote;
-          }
-        });
-        const points = state.survey.points - votes.reduce(reducer, 0);
-        if (points >= 0) {
-          return { votes, points };
-        } else { return { votes:origvotes }; }
-      });
-      break;
-    }
-
-    case 'voteDown': {
-      this.setState(state => {
-        const origvotes = state.votes;
-        const votes = state.votes.map((vote, jndex) => {
-          if (index === jndex && vote - 1 >= 0) {
-            return vote - 1;
-          } else {
-            return vote;
-          }
-        });
-        const points = state.survey.points - votes.reduce(reducer, 0);
-        if (points >= 0) {
-          return { votes, points };
-        } else { return { votes:origvotes }; }
-      });
-      break;
-    }
-
-    case 'reset': {
-      const loadvotes = [];
-      for (let i = 0; i < this.state.survey.answers.length; i++) {
-        loadvotes.push(0);
-      }
-      this.setState({ votes: loadvotes, points: this.state.survey.points });
-      break;
-    }
-
-    default:
-      break;
-    }
-  }
-
-
-  handleSubmit(event) {
-    event.preventDefault();
-    console.log(this.state);
-    fetch('./response', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(this.state),
-    }).then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        this.setState({ response: json });
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
   render() {
     const answers = [];
+    const maincsv = [['index', 'answer', 'votes', 'points']];
     if (this.state.response.status === 'success') {
       for (let i = 0; i < this.state.response.survey.answers.length; i++) {
         let vote = 0;
@@ -118,11 +44,12 @@ class ResultsForm extends React.Component {
         answers.push(// <p key={i} className="Results-answer">{i + 1}. {this.state?.response?.survey?.answers[i]}</p>
           <tr key={i}>
             <td>{i + 1}</td>
-            <td>{this.state?.response?.survey?.answers[i]}</td>
+            <td>{this.state.response.survey.answers[i]}</td>
             <td>{vote}</td>
             <td>{point}</td>
           </tr>,
         );
+        maincsv.push([(i + 1), this.state.response.survey.answers[i], vote, point]);
       }
     }
     return (
@@ -131,7 +58,7 @@ class ResultsForm extends React.Component {
         <h1 className="Results-question">{this.state.response?.survey?.question}</h1>
         <div>
           <h3>Responses: {this.state.response?.responses?.responses?.length}</h3>
-          <h4 className="Results-title">Totals: </h4>
+          <h4 className="Results-title">Totals: <CSVLink data={maincsv} filename={'survey_stats.csv'}>csv</CSVLink></h4>
           <table className="Results-raw">
             <thead>
               <tr>
@@ -146,10 +73,7 @@ class ResultsForm extends React.Component {
             </tbody>
           </table>
         </div>
-        <div>
-          <h4 className="Results-title">Individual Responses: </h4>
-          <ResponseTable responses={this.state.response?.responses?.responses || []} />
-        </div>
+        <ResponseTable responses={this.state.response?.responses?.responses || []} />
       </div>
     );
   }
@@ -172,12 +96,27 @@ function ResponseTable(props) {
   if (!props.responses.length) {
     return (null);
   }
+  const digits = [];
+  const csvdig = [];
+  for (let i = 0; i < props.responses[0].votes.length; i++) {
+    digits.push(<td key={i}>{i + 1}</td>);
+    csvdig.push(i + 1);
+  }
   const rows = [];
+  const indcsv = [['IP', 'name', 'email', 'leftover points', ''].concat(csvdig, [''], csvdig)];
   for (const response of props.responses) {
     const votes = [];
     const points = [];
-    for (const [i, vote] of response.votes.entries()) { votes.push(<td key={i}>{vote}</td>); }
-    for (const [i, point] of response.points.entries()) { points.push(<td key={i}>{point}</td>); }
+    const csvvotes = [];
+    const csvpoints = [];
+    for (const [i, vote] of response.votes.entries()) {
+      votes.push(<td key={i}>{vote}</td>);
+      csvvotes.push(vote);
+    }
+    for (const [i, point] of response.points.entries()) {
+      points.push(<td key={i}>{point}</td>);
+      csvpoints.push(point);
+    }
     rows.push(
       <tr key={response.ClientID}>
         <td>{response.ClientIP}</td>
@@ -190,29 +129,29 @@ function ResponseTable(props) {
         {points}
       </tr>,
     );
-  }
-  const digits = [];
-  for (let i = 0; i < props.responses[0].votes.length; i++) {
-    digits.push(<td key={i}>{i + 1}</td>);
+    indcsv.push([response.ClientIP, response.name, response.email, response.remaining, ''].concat(csvvotes, [''], csvpoints));
   }
   return (
-    <table className="Results-raw">
-      <thead>
-        <tr>
-          <td>IP</td>
-          <td>Name</td>
-          <td>Email</td>
-          <td>Unused points</td>
-          <td>Votes:</td>
-          {digits}
-          <td>Points:</td>
-          {digits}
-        </tr>
-      </thead>
-      <tbody>
-        {rows}
-      </tbody>
-    </table>
+    <div>
+      <h4 className="Results-title">Individual Responses: <CSVLink data={indcsv} filename={'survey_responses.csv'}>csv</CSVLink></h4>
+      <table className="Results-raw">
+        <thead>
+          <tr>
+            <td>IP</td>
+            <td>Name</td>
+            <td>Email</td>
+            <td>Unused points</td>
+            <td>Votes:</td>
+            {digits}
+            <td>Points:</td>
+            {digits}
+          </tr>
+        </thead>
+        <tbody>
+          {rows}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
