@@ -16,7 +16,7 @@
     "express": "^4.18.2",
     "helmet": "^4.6.0",
     "html-table-to-json": "^1.0.0",
-    "mongodb": "^4.2.2",
+    "mongodb": "^4.17.0",
     "prompt-sync": "^4.2.0"
   }
 }
